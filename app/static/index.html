@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mnemonic</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<div id="sidebar">
+  <div class="sidebar-logo">Mnemonic <span>/ study</span></div>
+  <nav>
+    <div class="sidebar-section">Study</div>
+    <a onclick="showView('dashboard')" class="active" id="nav-dashboard"><span class="icon">⊞</span> Dashboard</a>
+    <a onclick="showView('challenge')" id="nav-challenge"><span class="icon">⚡</span> Challenge</a>
+    <a onclick="showView('chat')" id="nav-chat"><span class="icon">◈</span> Chat</a>
+    <div class="sidebar-section" style="margin-top:12px">Manage</div>
+    <a onclick="showView('topics')" id="nav-topics"><span class="icon">◎</span> Topics</a>
+    <a onclick="showView('logs')" id="nav-logs"><span class="icon">≡</span> Log</a>
+  </nav>
+  <div class="sidebar-token">
+    <label>API Token</label>
+    <input type="password" id="token-input" placeholder="Paste your token" onchange="setToken(this.value)" />
+  </div>
+</div>
+
+<div id="main">
+  <div class="topbar">
+    <h1 id="view-title">Dashboard</h1>
+    <span class="status" id="status-text"></span>
+  </div>
+
+  <!-- Dashboard -->
+  <div class="view active" id="view-dashboard">
+    <div class="dashboard-grid">
+      <div class="stat-card"><div class="stat-value green" id="stat-pending">-</div><div class="stat-label">Pending Challenges</div></div>
+      <div class="stat-card"><div class="stat-value blue" id="stat-topics">-</div><div class="stat-label">Topics</div></div>
+    </div>
+    <div class="card"><div class="card-title">Pending Challenges</div><div id="dash-challenges"><div class="text-muted text-sm">Loading...</div></div></div>
+    <div class="card mt-12"><div class="card-title">Recent Submissions</div><div id="dash-logs"><div class="text-muted text-sm">Loading...</div></div></div>
+    <div class="card mt-12"><div class="card-title">Progress by Topic</div><div id="dash-progress" style="margin-top:8px"><div class="text-muted text-sm">Loading...</div></div></div>
+  </div>
+
+  <!-- Challenge -->
+  <div class="view" id="view-challenge">
+    <div class="card" id="challenge-controls">
+      <div class="flex gap-8" style="align-items:flex-end;flex-wrap:wrap">
+        <div class="form-group" style="flex:1;min-width:160px;margin:0">
+          <label class="form-label">Topic</label>
+          <select id="topic-select"><option value="">Loading...</option></select>
+        </div>
+        <div class="form-group" style="width:140px;margin:0">
+          <label class="form-label">Difficulty</label>
+          <select id="difficulty-select">
+            <option value="easy">Easy</option>
+            <option value="intermediate" selected>Intermediate</option>
+            <option value="advanced">Advanced</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" onclick="generateChallenge()" id="btn-generate">⚡ Generate</button>
+      </div>
+    </div>
+
+    <div id="challenge-content" class="hidden">
+      <div class="challenge-layout">
+        <div class="challenge-left">
+          <div class="card">
+            <div class="flex" style="justify-content:space-between;align-items:center;margin-bottom:12px">
+              <span id="challenge-difficulty-badge" class="badge"></span>
+              <span class="text-muted text-sm mono" id="challenge-id-label"></span>
+            </div>
+            <h2 id="challenge-title" style="font-size:15px;margin-bottom:10px"></h2>
+            <p id="challenge-desc" style="font-size:13px;color:var(--text-muted);line-height:1.7;margin-bottom:14px"></p>
+            <div class="card-title">Requirements</div>
+            <ul class="requirements-list" id="challenge-requirements"></ul>
+            <div class="card-title mt-12">Expected Behavior</div>
+            <p id="challenge-expected" style="font-size:13px;color:var(--text-muted);line-height:1.6;margin-top:6px"></p>
+            <div class="card-title mt-12">Starter Code</div>
+            <div class="starter-code mt-12" id="challenge-starter"></div>
+            <div class="card-title mt-12">Knowledge References</div>
+            <div id="challenge-refs" style="margin-top:6px"></div>
+          </div>
+        </div>
+
+        <div class="challenge-right">
+          <div class="card" style="flex:1;display:flex;flex-direction:column">
+            <div class="flex" style="justify-content:space-between;align-items:center;margin-bottom:8px">
+              <div class="card-title" style="margin:0">Your Solution</div>
+              <span class="text-muted text-sm">Write in VS Code → paste here</span>
+            </div>
+            <textarea id="code-editor" placeholder="Paste your solution here..."></textarea>
+            <div class="flex gap-8 mt-12">
+              <button class="btn btn-success" onclick="submitSolution()" id="btn-submit" style="flex:1">▶ Submit & Evaluate</button>
+              <button class="btn btn-primary" onclick="generateChallenge()" id="btn-regen">🔄 New</button>
+              <button class="btn btn-ghost" onclick="clearEditor()">Clear</button>
+            </div>
+          </div>
+
+          <!-- Topic suggestion panel -->
+          <div id="suggestion-panel" class="hidden"></div>
+
+          <!-- Results -->
+          <div id="result-panel" class="hidden">
+            <div class="grade-display">
+              <div>
+                <div class="grade-badge" id="result-grade-badge">-</div>
+                <div class="grade-label" id="result-grade-label"></div>
+              </div>
+              <div class="grade-rationale" id="result-rationale"></div>
+            </div>
+            <div class="card"><div class="card-title">Feedback & Suggestions</div><div class="feedback-text mt-12" id="result-feedback"></div></div>
+            <div class="card"><div class="card-title">Execution</div><div id="result-execution" class="mt-12"></div></div>
+            <div class="card"><div class="card-title">Knowledge Sources</div><div id="result-citations" class="mt-12"></div></div>
+            <div class="card"><div class="card-title">Next Review</div><div id="result-fsrs" class="mt-12 text-sm"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chat -->
+  <div class="view" id="view-chat" style="display:none;flex-direction:column;height:calc(100vh - 48px)">
+    <div id="chat-messages"></div>
+    <div class="chat-input-row">
+      <textarea id="chat-input" placeholder="Ask about any concept in your knowledge base..." rows="2" onkeydown="chatKeydown(event)"></textarea>
+      <button class="btn btn-primary" onclick="sendChat()" id="btn-chat-send">Send</button>
+    </div>
+  </div>
+
+  <!-- Topics -->
+  <div class="view" id="view-topics">
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-title">Add Topic</div>
+      <div class="flex gap-8 mt-12" style="align-items:flex-end;flex-wrap:wrap">
+        <div class="form-group" style="flex:1;min-width:140px;margin:0">
+          <label class="form-label">Topic Name</label>
+          <input type="text" id="new-topic-name" placeholder="e.g. Attention Mechanism" />
+        </div>
+        <div class="form-group" style="width:130px;margin:0">
+          <label class="form-label">Language</label>
+          <select id="new-topic-lang">
+            <option value="Python">Python</option>
+            <option value="C++">C++</option>
+            <option value="C#">C#</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" onclick="addTopic()">+ Add</button>
+      </div>
+    </div>
+    <div class="card"><div class="card-title">Your Topics</div><div id="topics-list" class="mt-12"><div class="text-muted text-sm">Loading...</div></div></div>
+  </div>
+
+  <!-- Log -->
+  <div class="view" id="view-logs">
+    <div class="card" style="margin-bottom:12px">
+      <div class="flex" style="justify-content:space-between;align-items:center">
+        <div class="card-title" style="margin:0">Study Log</div>
+        <button class="btn btn-ghost text-sm" onclick="syncLogs()">⇅ Sync to Debian</button>
+      </div>
+      <div class="card-meta mt-12">All submissions are logged to <span class="mono text-accent">data/logs/study_log.jsonl</span></div>
+    </div>
+    <div id="sync-result" class="hidden"></div>
+    <div id="log-entries"><div class="text-muted text-sm">Loading...</div></div>
+  </div>
+</div>
+
+<script src="/static/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+# Syncs Mnemonic study logs to a remote machine over rsync.
+#
+# Setup:
+#   1. Copy this file: cp scripts/sync_logs.sh.example scripts/sync_logs.sh
+#   2. Fill in SOURCE, DEST, and REMOTE_HOST below
+#   3. Set up SSH key auth: ssh-copy-id USER@REMOTE_IP
+#   4. Run manually: bash scripts/sync_logs.sh
+
+set -e
+
+SOURCE="/home/YOUR_USER/path/to/mnemonic/data/logs/"
+DEST="YOUR_USER@YOUR_REMOTE_IP:/path/on/remote/mnemonic/logs/"
+
+echo "[$(date '+%Y-%m-%d %H:%M:%S')] Starting log sync..."
+
+ssh YOUR_USER@YOUR_REMOTE_IP "mkdir -p /path/on/remote/mnemonic/logs/" 2>/dev/null || true
+
+rsync -avz --progress "$SOURCE" "$DEST"
+
+echo "[$(date '+%Y-%m-%d %H:%M:%S')] Sync complete."

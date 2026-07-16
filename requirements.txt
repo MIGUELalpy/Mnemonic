@@ -1,0 +1,38 @@
+#  Web framework 
+fastapi==0.115.5
+uvicorn[standard]==0.32.1
+python-multipart==0.0.12          # form/file uploads in FastAPI
+
+#  Settings & environment 
+pydantic-settings==2.6.1          # typed Settings from .env
+python-dotenv==1.0.1
+
+# PostgreSQL 
+sqlmodel==0.0.22                  # SQLAlchemy + Pydantic unified ORM
+asyncpg==0.30.0                   # async PostgreSQL driver (used by SQLModel at runtime)
+psycopg2-binary==2.9.10           # sync driver required by Alembic for migrations
+alembic==1.14.0                   # schema migrations
+
+# Qdrant 
+qdrant-client==1.12.1             # includes gRPC support
+
+#  Neo4j 
+neo4j==5.26.0                     # official async driver
+
+# Redis / Celery 
+celery[redis]==5.4.0
+redis==5.2.0
+
+#  Utilities 
+httpx==0.28.1                     # async HTTP client (calls to secondary node)
+tenacity==9.0.0                   # retry logic for network calls
+structlog==24.4.0                 # structured JSON logging
+
+#  Ingestion pipeline 
+pdfplumber==0.11.4                # PDF text extraction fallback
+marker-pdf==0.2.17                # Primary PDF→Markdown extractor (optional, heavy)
+
+langgraph==0.2.60
+langchain-core==0.3.29
+
+aiofiles==23.2.1

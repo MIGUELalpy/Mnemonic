@@ -1,0 +1,71 @@
+# Secrets
+.env
+*.env
+
+# Knowledge base data
+data/backups/*
+data/intake/*
+data/logs/*
+data/processed/*
+data/failed/
+
+!data/backups/.gitkeep
+!data/failed/.gitkeep
+!data/intake/.gitkeep
+!data/logs/.gitkeep
+!data/processed/.gitkeep
+
+# Scripts 
+scripts/backup_db.sh
+scripts/sync_logs.sh
+
+# Python 
+__pycache__/
+*.py[cod]
+*.pyo
+.Python
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+secondary-node/__pycache__/
+
+# Virtual environments
+venv/
+env/
+.venv/
+secondary-node/venv/
+
+# Celery 
+celerybeat-schedule
+celerybeat.pid
+
+# IDE 
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# Temporary files 
+*.tmp
+*.bak
+*.orig
+
+secondary-node/
