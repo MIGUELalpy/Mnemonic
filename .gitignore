@@ -67,5 +67,3 @@ logs/
 *.tmp
 *.bak
 *.orig
-
-secondary-node/

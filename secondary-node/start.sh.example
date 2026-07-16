@@ -1,0 +1,51 @@
+# Startup script for the Mnemonic secondary node service.
+#
+# Run this every time you want to bring the secondary node online:
+#   chmod +x start.sh   (first time only)
+#   ./start.sh
+# ─────────────────────────────────────────────────────────────────────────────
+
+set -e
+
+VENV_DIR="$(dirname "$0")/venv"
+PORT=8001
+
+# ── Activate virtual environment ──────────────────────────────────────────────
+if [ ! -d "$VENV_DIR" ]; then
+    echo "[ERROR] Virtual environment not found at $VENV_DIR"
+    echo "        Run: python3 -m venv venv && source venv/bin/activate && pip install -r requirements.txt"
+    exit 1
+fi
+source "$VENV_DIR/bin/activate"
+export TRANSFORMERS_OFFLINE=1
+export HF_DATASETS_OFFLINE=1
+echo "[OK] Virtual environment activated"
+
+# ── Check GPU ─────────────────────────────────────────────────────────────────
+if command -v nvidia-smi &>/dev/null; then
+    GPU=$(nvidia-smi --query-gpu=name,memory.total --format=csv,noheader 2>/dev/null | head -1)
+    echo "[OK] GPU: $GPU"
+else
+    echo "[WARN] nvidia-smi not found — service will run on CPU (slower)"
+fi
+
+# ── Check CUDA ────────────────────────────────────────────────────────────────
+python3 -c "import torch; print(f'[OK] PyTorch {torch.__version__}, CUDA available: {torch.cuda.is_available()}')"
+
+# ── Print LAN IP ──────────────────────────────────────────────────────────────
+# Replace enp3s0 with your network interface name (check with: ip link show)
+LAN_IP=$(ip addr show enp3s0 | grep "inet " | awk '{print $2}' | cut -d/ -f1)
+echo "[OK] Service will be available at http://$LAN_IP:$PORT"
+echo "[OK] Set SECONDARY_NODE_URL=http://$LAN_IP:$PORT in the primary node's .env"
+echo ""
+echo "─── Starting Mnemonic secondary node ────────────────────────────────────"
+
+# ── Start the service ─────────────────────────────────────────────────────────
+# --host 0.0.0.0  : listen on all interfaces (required for LAN access)
+# --port 8001     : the port configured in the primary node's .env
+# --workers 1     : single worker — models are not thread-safe across workers
+TORCH_FORCE_WEIGHTS_ONLY_LOAD=0 uvicorn main:app \
+    --host 0.0.0.0 \
+    --port "$PORT" \
+    --workers 1 \
+    --log-level info
