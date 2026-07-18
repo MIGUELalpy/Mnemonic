@@ -86,13 +86,12 @@ async def execute(
         )
 
     payload = {
-        "language": piston_lang,
-        "version": version,
-        "files": [{"name": _get_filename(programming_language), "content": code}],
-        "stdin": stdin,
-        "args": [],
-        "run_timeout": int(_TIMEOUT_SECONDS * 1000),
-    }
+    "language": piston_lang,
+    "version": version,
+    "files": [{"name": _get_filename(programming_language), "content": code}],
+    "stdin": stdin,
+    "args": [],
+}
 
     import time
     t_start = time.time()

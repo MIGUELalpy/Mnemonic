@@ -58,8 +58,8 @@ Example of correct citations format with multiple sources:
 
 Respond ONLY with this JSON — no other text."""
 
-_SYSTEM_CODE = """You are a code reviewer for a software engineering learning platform.
-Evaluate the submitted code using the provided knowledge base chunks as your reference.
+_SYSTEM_CODE = """You are a senior software engineer providing technical feedback.
+Review the submitted code using the provided knowledge base chunks as your reference.
 
 Grade rubric (1-10 scale):
   10    = Flawless. Optimal algorithm, handles all edge cases, clean and well documented.
